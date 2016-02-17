@@ -19,22 +19,19 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 /**
- * @author Sebastian Stallenberger - jambit GmbH
+ * The data manager for handling, fetching and managing fire fighter update data.
  */
 public class DataManager {
 
     private static final String TAG = "DataManager";
-    public static final int UPDATE_INTERVAL = 2;
-    private HashMap<String, FireFighterData> dataEntries;
-
+    private static final int UPDATE_INTERVAL = 2; // in seconds
     private static final String BASE_URL = "http://192.168.232.112:8080/api/v1";
     private static final String REST_PATH_DATA = "/data";
 
     private boolean isConnected = false;
 
-    /**
-     * HTTP client
-     */
+    private HashMap<String, FireFighterData> dataEntries;
+
     private final OkHttpClient client = new OkHttpClient();
     private final ScheduledExecutorService scheduler;
 

@@ -1,5 +1,9 @@
 package com.jambit.leaderapp;
 
+/**
+ * A data object for fire fighter update data. Used to parse JSON.
+ */
+@SuppressWarnings("unused")
 public class FireFighterData {
     private String ffId;
     private Status status;

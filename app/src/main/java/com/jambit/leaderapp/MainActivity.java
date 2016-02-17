@@ -20,14 +20,18 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 
+/**
+ * The main activity
+ */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     public static final int TIMEOUT_SECONDS = 30;
+    public static final int DANGEROUS_HEARTRATE_OFFSET_MINIMUM = 50;
+    public static final int DANGEROUS_HEARTRATE_OFFSET_MAXIMUM = 200;
     private RecyclerView.Adapter mAdapter;
 
     private DataManager dataManager;
     private ImageView disconnectedIcon;
-    private Observable<Void> updateObservable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize data manager
         dataManager = new DataManager();
-        updateObservable = dataManager.activate();
+        Observable<Void> updateObservable = dataManager.activate();
 
         // Configure recycler view
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.ff_recycler_view);
@@ -84,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
         dataManager.deactivate();
     }
 
+    /**
+     * A data holder structure for a single recycler view cell.
+     */
     private static class FFDataHolder extends RecyclerView.ViewHolder {
         public RelativeLayout containerLayout;
         public TextView nameTextView;
@@ -114,9 +121,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * The adapter for filling the recycler view.
+     */
     private class FFAdapter extends RecyclerView.Adapter<FFDataHolder> {
 
         public static final String TAG = "FFAdapter";
+        public static final int SECONDS_TO_MILLISECONDS_FACTOR = 1000;
 
         @Override
         public FFDataHolder onCreateViewHolder(ViewGroup parent, int pos) {
@@ -129,33 +140,35 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(FFDataHolder holder, int pos) {
             FireFighterData ffData = dataManager.getDataEntries().get(pos);
 
+            // Update name (ffId)
             holder.nameTextView.setText(ffData.getFfId());
 
-            Long epochMilliSeconds = ffData.getTimestamp().getEpochSecond() * 1000;
+            // Update last updated
+            Long epochMilliSeconds = ffData.getTimestamp().getEpochSecond() * SECONDS_TO_MILLISECONDS_FACTOR;
             Date lastUpDate = new Date(epochMilliSeconds);
-            long lastUpdateSecondsAgo = (new Date().getTime() - lastUpDate.getTime()) / 1000;
+            long lastUpdateSecondsAgo = (new Date().getTime() - lastUpDate.getTime()) / SECONDS_TO_MILLISECONDS_FACTOR;
             holder.lastUpdateTextView.setText(String.format(Locale.GERMAN, "last update: %d seconds ago", lastUpdateSecondsAgo));
 
-            boolean timedOut = new Date().getTime() - TIMEOUT_SECONDS * 1000 > epochMilliSeconds;
-            if (timedOut) {
-                // timeout
-                holder.containerLayout.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.status_danger));
+            // Check if connection timed out.
+            boolean timedOut = new Date().getTime() - TIMEOUT_SECONDS * SECONDS_TO_MILLISECONDS_FACTOR > epochMilliSeconds;
 
-            } else {
-                holder.containerLayout.setBackgroundColor(ContextCompat.getColor(MainActivity.this, android.R.color.white));
-            }
+            // Set container background
+            holder.statusIconView.setBackgroundColor(ContextCompat.getColor(MainActivity.this, timedOut ? R.color.status_danger : R.color.status_neutral));
 
             if (ffData.getStatus() != null) {
                 switch (ffData.getStatus()) {
                     case OK: {
+                        // Everything is ok with the smartphone/wearable connection. We can use the vital data.
                         if (ffData.getVitalSigns() == null) {
-                            Log.e(TAG, "Didn't find vitaldata. Can't process update.");
+                            Log.e(TAG, "Didn't find vital data. This should never happen! (Never, Tobi!)");
                             return;
                         }
 
-                        holder.heartRateView.setText(String.format(Locale.GERMAN, "%d bpm", ffData.getVitalSigns().getHeartRate()));
-                        holder.stepCountView.setText(String.format(Locale.GERMAN, "%d steps", ffData.getVitalSigns().getStepCount()));
+                        // Update vital data content
+                        holder.heartRateView.setText(String.format(Locale.GERMAN, "%d %s", ffData.getVitalSigns().getHeartRate(), getString(R.string.heartrate_suffix)));
+                        holder.stepCountView.setText(String.format(Locale.GERMAN, "%d %s", ffData.getVitalSigns().getStepCount(), getString(R.string.heartrate_suffix)));
 
+                        // Update status icon
                         switch (dataManager.criticalState(ffData)) {
                             case CRITICAL_STATE_DEAD:
                                 holder.statusIconView.setImageDrawable(getDrawable(R.drawable.ic_accessibility_24px));
@@ -175,12 +188,9 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                         }
 
-                        if (ffData.getVitalSigns().getHeartRate() < 50 || ffData.getVitalSigns().getHeartRate() > 200) {
-                            if (timedOut) {
-                                holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, android.R.color.white));
-                            } else {
-                                holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.warning_font));
-                            }
+                        // If heartrate is critical, change the color of the label
+                        if (ffData.getVitalSigns().getHeartRate() < DANGEROUS_HEARTRATE_OFFSET_MINIMUM || ffData.getVitalSigns().getHeartRate() > DANGEROUS_HEARTRATE_OFFSET_MAXIMUM) {
+                            holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.warning_font));
                         } else {
                             holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, android.R.color.black));
                         }
@@ -189,8 +199,8 @@ public class MainActivity extends AppCompatActivity {
                     case NO_DATA: {
                         holder.statusIconView.setImageDrawable(getDrawable(R.drawable.ic_assignment_late_24px));
                         holder.statusIconView.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.status_error), android.graphics.PorterDuff.Mode.MULTIPLY);
-                        holder.heartRateView.setText("No data");
-                        holder.stepCountView.setText("No data");
+                        holder.heartRateView.setText(R.string.no_data);
+                        holder.stepCountView.setText(R.string.no_data);
                         break;
                     }
                 }
