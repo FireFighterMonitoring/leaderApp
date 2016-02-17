@@ -19,9 +19,11 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final int TIMEOUT_SECONDS = 30;
     private RecyclerView.Adapter mAdapter;
 
     private DataManager dataManager;
+    private ImageView disconnectedIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new FFAdapter();
         mRecyclerView.setAdapter(mAdapter);
 
+        disconnectedIcon = (ImageView) findViewById(R.id.disconnected_image_view);
+
         //Declare the timer
         Timer t = new Timer();
         //Set the schedule function and rate
@@ -51,6 +55,17 @@ public class MainActivity extends AppCompatActivity {
                                           @Override
                                           public void run() {
                                               mAdapter.notifyDataSetChanged();
+
+                                              runOnUiThread(new Runnable() {
+                                                  @Override
+                                                  public void run() {
+                                                      if (dataManager.isConnected()) {
+                                                          disconnectedIcon.setVisibility(View.GONE);
+                                                      } else {
+                                                          disconnectedIcon.setVisibility(View.VISIBLE);
+                                                      }
+                                                  }
+                                              });
                                           }
                                       });
 
@@ -66,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         public RelativeLayout containerLayout;
         public TextView nameTextView;
         public TextView heartRateView;
+        public TextView stepCountView;
         public ImageView statusIconView;
         public TextView lastUpdateTextView;
 
@@ -78,6 +94,9 @@ public class MainActivity extends AppCompatActivity {
                     .findViewById(R.id.name_text_view);
             heartRateView = (TextView) itemView
                     .findViewById(R.id.heart_text_view);
+
+            stepCountView = (TextView) itemView
+                    .findViewById(R.id.steps_text_view);
 
             lastUpdateTextView = (TextView) itemView
                     .findViewById(R.id.lastupdate_text_view);
@@ -101,12 +120,14 @@ public class MainActivity extends AppCompatActivity {
             FireFighterData ffData = dataManager.getDataEntries().get(pos);
             holder.nameTextView.setText(ffData.getFfId());
             holder.heartRateView.setText(String.format(Locale.GERMAN, "%d bpm", ffData.getHeartRate()));
+            holder.stepCountView.setText(String.format(Locale.GERMAN, "%d steps", ffData.getStepCount()));
 
             Long epochMilliSeconds = ffData.getTimestamp().getEpochSecond() * 1000;
             Date lastUpDate = new Date(epochMilliSeconds);
-            holder.lastUpdateTextView.setText(String.format(Locale.GERMAN, "last update: %s", lastUpDate));
+            long lastUpdateSecondsAgo = (new Date().getTime() - lastUpDate.getTime()) / 1000;
+            holder.lastUpdateTextView.setText(String.format(Locale.GERMAN, "last update: %d seconds ago", lastUpdateSecondsAgo));
 
-            if (ffData.getHeartRate() < 90 || ffData.getHeartRate() > 150) {
+            if (ffData.getHeartRate() < 50 || ffData.getHeartRate() > 200) {
                 holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.warning_font));
             } else {
                 holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, android.R.color.black));
@@ -127,8 +148,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
 
-            if (new Date().getTime() - 30000 > epochMilliSeconds) {
+            if (new Date().getTime() - TIMEOUT_SECONDS * 1000 > epochMilliSeconds) {
                 holder.containerLayout.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.warning));
+                holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, android.R.color.white));
             } else {
                 holder.containerLayout.setBackgroundColor(ContextCompat.getColor(MainActivity.this, android.R.color.white));
             }

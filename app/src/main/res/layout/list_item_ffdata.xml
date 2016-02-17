@@ -37,10 +37,20 @@
         android:text="666 bpm" />
 
     <TextView
-        android:id="@+id/lastupdate_text_view"
+        android:id="@+id/steps_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/heart_text_view"
+        android:layout_marginStart="20dp"
+        android:layout_toEndOf="@id/statusImageView"
+        android:maxLines="1"
+        android:text="666 steps" />
+
+    <TextView
+        android:id="@+id/lastupdate_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/steps_text_view"
         android:layout_marginStart="20dp"
         android:layout_toEndOf="@id/statusImageView"
         android:maxLines="1"
