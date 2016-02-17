@@ -4,5 +4,6 @@
     <color name="colorPrimaryDark">#AA0000</color>
     <color name="colorAccent">#ff9c40</color>
     <color name="background">#fff5f5</color>
-    <color name="black">#000000</color>
+    <color name="warning_font">#fc7474</color>
+    <color name="warning">#FF0000</color>
 </resources>

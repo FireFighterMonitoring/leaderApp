@@ -9,8 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.Date;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -61,17 +63,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static class FFDataHolder extends RecyclerView.ViewHolder {
+        public RelativeLayout containerLayout;
         public TextView nameTextView;
         public TextView heartRateView;
         public ImageView statusIconView;
+        public TextView lastUpdateTextView;
 
         public FFDataHolder(View itemView) {
             super(itemView);
+            containerLayout = (RelativeLayout) itemView
+                    .findViewById(R.id.firefighter_container_layout);
 
             nameTextView = (TextView) itemView
                     .findViewById(R.id.name_text_view);
             heartRateView = (TextView) itemView
                     .findViewById(R.id.heart_text_view);
+
+            lastUpdateTextView = (TextView) itemView
+                    .findViewById(R.id.lastupdate_text_view);
 
             statusIconView = (ImageView) itemView
                     .findViewById(R.id.statusImageView);
@@ -89,14 +98,18 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(FFDataHolder holder, int pos) {
-            FFData ffData = dataManager.getDataEntries().get(pos);
+            FireFighterData ffData = dataManager.getDataEntries().get(pos);
             holder.nameTextView.setText(ffData.getFfId());
             holder.heartRateView.setText(String.format(Locale.GERMAN, "%d bpm", ffData.getHeartRate()));
 
+            Long epochMilliSeconds = ffData.getTimestamp().getEpochSecond() * 1000;
+            Date lastUpDate = new Date(epochMilliSeconds);
+            holder.lastUpdateTextView.setText(String.format(Locale.GERMAN, "last update: %s", lastUpDate));
+
             if (ffData.getHeartRate() < 90 || ffData.getHeartRate() > 150) {
-                holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary));
+                holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.warning_font));
             } else {
-                holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.black));
+                holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, android.R.color.black));
             }
 
             switch (dataManager.criticalState(ffData)) {
@@ -112,6 +125,12 @@ public class MainActivity extends AppCompatActivity {
                 case CRITICAL_STATE_NOT_CRITICAL:
                     holder.statusIconView.setImageDrawable(getDrawable(android.R.drawable.presence_online));
                     break;
+            }
+
+            if (new Date().getTime() - 30000 > epochMilliSeconds) {
+                holder.containerLayout.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.warning));
+            } else {
+                holder.containerLayout.setBackgroundColor(ContextCompat.getColor(MainActivity.this, android.R.color.white));
             }
         }
 
