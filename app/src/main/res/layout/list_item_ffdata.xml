@@ -26,33 +26,60 @@
         android:text="FF Name"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/heart_text_view"
+    <ImageView
+        android:id="@+id/heartrate_image_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/name_text_view"
         android:layout_marginStart="20dp"
         android:layout_toEndOf="@id/statusImageView"
+        android:src="@drawable/ic_timeline_24px" />
+
+    <TextView
+        android:id="@+id/heart_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/heartrate_image_view"
+        android:layout_marginStart="5dp"
+        android:layout_toEndOf="@id/heartrate_image_view"
         android:maxLines="1"
         android:text="666 bpm" />
+
+    <ImageView
+        android:id="@+id/steps_image_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/heartrate_image_view"
+        android:layout_marginStart="20dp"
+        android:layout_toEndOf="@id/statusImageView"
+        android:src="@drawable/ic_directions_walk_24px" />
 
     <TextView
         android:id="@+id/steps_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/heart_text_view"
-        android:layout_marginStart="20dp"
-        android:layout_toEndOf="@id/statusImageView"
+        android:layout_alignTop="@id/steps_image_view"
+        android:layout_marginStart="5dp"
+        android:layout_toEndOf="@id/steps_image_view"
         android:maxLines="1"
         android:text="666 steps" />
+
+    <ImageView
+        android:id="@+id/lastupdate_image_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/steps_image_view"
+        android:layout_marginStart="20dp"
+        android:layout_toEndOf="@id/statusImageView"
+        android:src="@drawable/ic_hourglass_empty_24px" />
 
     <TextView
         android:id="@+id/lastupdate_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/steps_text_view"
-        android:layout_marginStart="20dp"
-        android:layout_toEndOf="@id/statusImageView"
+        android:layout_alignTop="@id/lastupdate_image_view"
+        android:layout_marginStart="5dp"
+        android:layout_toEndOf="@id/lastupdate_image_view"
         android:maxLines="1"
         android:text="last update" />
 

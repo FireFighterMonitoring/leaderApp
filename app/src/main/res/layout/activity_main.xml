@@ -22,7 +22,7 @@
         android:layout_height="40dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:src="@android:drawable/stat_sys_warning"
-        android:tint="@color/warning"
+        android:src="@drawable/ic_report_problem_24px"
+        android:tint="@color/status_warning"
         android:tintMode="multiply" />
 </RelativeLayout>

@@ -2,23 +2,29 @@ package com.jambit.leaderapp;
 
 public class FireFighterData {
     private String ffId;
-    private int heartRate;
-    private int stepCount;
+    private Status status;
     private FireFighterDataTimestamp timestamp;
+    private FireFighterDataVitalsigns vitalSigns;
 
     public String getFfId() {
         return ffId;
     }
 
-    public int getHeartRate() {
-        return heartRate;
-    }
-
-    public int getStepCount() {
-        return stepCount;
-    }
-
     public FireFighterDataTimestamp getTimestamp() {
         return timestamp;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public FireFighterDataVitalsigns getVitalSigns() {
+        return vitalSigns;
+    }
+
+    public enum Status {
+        OK,
+        NO_DATA,
+        DISCONNECTED
     }
 }

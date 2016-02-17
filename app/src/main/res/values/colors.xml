@@ -5,6 +5,9 @@
     <color name="colorAccent">#ff9c40</color>
     <color name="background">#fff5f5</color>
     <color name="warning_font">#FF0000</color>
-    <color name="warning">#FF0000</color>
+    <color name="status_ok">#00ff00</color>
+    <color name="status_error">#ae00ff</color>
+    <color name="status_warning">#ff9900</color>
+    <color name="status_danger">#ff0000</color>
     <color name="darkbackground">#840000</color>
 </resources>
