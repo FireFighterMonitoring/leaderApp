@@ -27,6 +27,7 @@ public class FireFighterData {
     }
 
     public enum Status {
+        CONNECTED,
         OK,
         NO_DATA,
         DISCONNECTED

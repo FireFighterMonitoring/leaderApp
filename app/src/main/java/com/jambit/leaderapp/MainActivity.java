@@ -157,48 +157,67 @@ public class MainActivity extends AppCompatActivity {
 
             if (ffData.getStatus() != null) {
                 switch (ffData.getStatus()) {
+                    case CONNECTED:
                     case OK: {
-                        // Everything is ok with the smartphone/wearable connection. We can use the vital data.
+                        // Everything is ok with the smartphone/wearable connection. We can use the vital data if it's available
+
+                        String heartRateText;
+                        String stepCountText;
+
                         if (ffData.getVitalSigns() == null) {
-                            Log.e(TAG, "Didn't find vital data. This should never happen! (Never, Tobi!)");
-                            return;
+                            String message = "Vital data not available";
+                            if (ffData.getStatus() == FireFighterData.Status.OK) {
+                                message += ", but status is OK, this should never happen!";
+                            }
+                            Log.e(TAG, message);
+
+                            heartRateText = getString(R.string.no_data);
+                            stepCountText = getString(R.string.no_data);
+                        } else {
+                            // Update vital data content
+                            heartRateText = ffData.getVitalSigns().getHeartRate() != -1
+                                    ? String.format(Locale.GERMAN, "%d %s", ffData.getVitalSigns().getHeartRate(), getString(R.string.heartrate_suffix))
+                                    : getString(R.string.no_data);
+                            stepCountText = ffData.getVitalSigns().getStepCount() != -1
+                                    ? String.format(Locale.GERMAN, "%d %s", ffData.getVitalSigns().getStepCount(), getString(R.string.steps_suffix))
+                                    : getString(R.string.no_data);
                         }
 
-                        // Update vital data content
-                        String heartRateText = ffData.getVitalSigns().getHeartRate() != -1
-                                ? String.format(Locale.GERMAN, "%d %s", ffData.getVitalSigns().getHeartRate(), getString(R.string.heartrate_suffix))
-                                : getString(R.string.no_data);
                         holder.heartRateView.setText(heartRateText);
-                        String stepCountText = ffData.getVitalSigns().getStepCount() != -1
-                                ? String.format(Locale.GERMAN, "%d %s", ffData.getVitalSigns().getStepCount(), getString(R.string.steps_suffix))
-                                : getString(R.string.no_data);
                         holder.stepCountView.setText(stepCountText);
 
-                        // Update status icon
-                        switch (dataManager.criticalState(ffData)) {
-                            case CRITICAL_STATE_DEAD:
-                                holder.statusIconView.setImageDrawable(getDrawable(R.drawable.ic_accessibility_24px));
-                                holder.statusIconView.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.status_danger), android.graphics.PorterDuff.Mode.MULTIPLY);
-                                break;
-                            case CRITICAL_STATE_CRITICAL:
-                                holder.statusIconView.setImageDrawable(getDrawable(R.drawable.ic_accessibility_24px));
-                                holder.statusIconView.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.status_danger), android.graphics.PorterDuff.Mode.MULTIPLY);
-                                break;
-                            case CRITICAL_STATE_WARNING:
-                                holder.statusIconView.setImageDrawable(getDrawable(R.drawable.ic_accessibility_24px));
-                                holder.statusIconView.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.status_warning), android.graphics.PorterDuff.Mode.MULTIPLY);
-                                break;
-                            case CRITICAL_STATE_NOT_CRITICAL:
-                                holder.statusIconView.setImageDrawable(getDrawable(R.drawable.ic_accessibility_24px));
-                                holder.statusIconView.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.status_ok), android.graphics.PorterDuff.Mode.MULTIPLY);
-                                break;
-                        }
+                        if (ffData.getVitalSigns() != null) {
+                            // Update status icon
+                            switch (dataManager.criticalState(ffData)) {
+                                case CRITICAL_STATE_DEAD:
+                                    holder.statusIconView.setImageDrawable(getDrawable(R.drawable.ic_accessibility_24px));
+                                    holder.statusIconView.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.status_danger), android.graphics.PorterDuff.Mode.MULTIPLY);
+                                    break;
+                                case CRITICAL_STATE_CRITICAL:
+                                    holder.statusIconView.setImageDrawable(getDrawable(R.drawable.ic_accessibility_24px));
+                                    holder.statusIconView.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.status_danger), android.graphics.PorterDuff.Mode.MULTIPLY);
+                                    break;
+                                case CRITICAL_STATE_WARNING:
+                                    holder.statusIconView.setImageDrawable(getDrawable(R.drawable.ic_accessibility_24px));
+                                    holder.statusIconView.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.status_warning), android.graphics.PorterDuff.Mode.MULTIPLY);
+                                    break;
+                                case CRITICAL_STATE_NOT_CRITICAL:
+                                    holder.statusIconView.setImageDrawable(getDrawable(R.drawable.ic_accessibility_24px));
+                                    holder.statusIconView.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.status_ok), android.graphics.PorterDuff.Mode.MULTIPLY);
+                                    break;
+                            }
 
-                        // If heartrate is critical, change the color of the label
-                        if (ffData.getVitalSigns().getHeartRate() < DANGEROUS_HEARTRATE_OFFSET_MINIMUM || ffData.getVitalSigns().getHeartRate() > DANGEROUS_HEARTRATE_OFFSET_MAXIMUM) {
-                            holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.warning_font));
+                            // If heartrate is critical, change the color of the label
+                            if (ffData.getVitalSigns().getHeartRate() < DANGEROUS_HEARTRATE_OFFSET_MINIMUM || ffData.getVitalSigns().getHeartRate() > DANGEROUS_HEARTRATE_OFFSET_MAXIMUM) {
+                                holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.warning_font));
+                            } else {
+                                holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, android.R.color.black));
+                            }
                         } else {
-                            holder.heartRateView.setTextColor(ContextCompat.getColor(MainActivity.this, android.R.color.black));
+                            holder.statusIconView.setImageDrawable(getDrawable(R.drawable.ic_assignment_late_24px));
+                            holder.statusIconView.setColorFilter(ContextCompat.getColor(MainActivity.this, R.color.status_error), android.graphics.PorterDuff.Mode.MULTIPLY);
+                            holder.heartRateView.setText(R.string.no_data);
+                            holder.stepCountView.setText(R.string.no_data);
                         }
                         break;
                     }
