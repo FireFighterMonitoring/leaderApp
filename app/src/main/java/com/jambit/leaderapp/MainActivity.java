@@ -165,8 +165,14 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         // Update vital data content
-                        holder.heartRateView.setText(String.format(Locale.GERMAN, "%d %s", ffData.getVitalSigns().getHeartRate(), getString(R.string.heartrate_suffix)));
-                        holder.stepCountView.setText(String.format(Locale.GERMAN, "%d %s", ffData.getVitalSigns().getStepCount(), getString(R.string.steps_suffix)));
+                        String heartRateText = ffData.getVitalSigns().getHeartRate() != -1
+                                ? String.format(Locale.GERMAN, "%d %s", ffData.getVitalSigns().getHeartRate(), getString(R.string.heartrate_suffix))
+                                : getString(R.string.no_data);
+                        holder.heartRateView.setText(heartRateText);
+                        String stepCountText = ffData.getVitalSigns().getStepCount() != -1
+                                ? String.format(Locale.GERMAN, "%d %s", ffData.getVitalSigns().getStepCount(), getString(R.string.steps_suffix))
+                                : getString(R.string.no_data);
+                        holder.stepCountView.setText(stepCountText);
 
                         // Update status icon
                         switch (dataManager.criticalState(ffData)) {
