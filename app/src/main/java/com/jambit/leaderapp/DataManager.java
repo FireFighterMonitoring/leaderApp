@@ -26,7 +26,7 @@ public class DataManager {
 
     private static final String TAG = "DataManager";
     private static final int UPDATE_INTERVAL = 2; // in seconds
-    private static final String BASE_URL = "http://192.168.234.222:8080/api/v1";
+    private static final String BASE_URL = "http://192.168.232.112:8080/api/v1";
     private static final String REST_PATH_DATA = "/data";
     public static final int MINIMUM_UPDATE_SECONDS = 10;
     public static final int SECONDS_TO_MILLISECONDS_FACTOR = 1000;
