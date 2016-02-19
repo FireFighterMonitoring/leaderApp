@@ -6,6 +6,8 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,20 +48,29 @@ public class DataManager {
     }
 
     /**
-     * Returns a list of FireFighterData sorted by timeout, FireFighterData.Status and CriticalState.
+     * Returns a list of FireFighterData sorted by timeout.
      *
      * @return a list of FireFighterData
      */
     public List<FireFighterData> getDataEntries() {
         List<FireFighterData> list = new ArrayList<>(dataEntries.values());
 
-//        // Sorting
-//        Collections.sort(list, new Comparator<FireFighterData>() {
-//            @Override
-//            public int compare(FireFighterData data2, FireFighterData data1) {
-//                return data1.compareTo(data2);
-//            }
-//        });
+        // Sorting
+        Collections.sort(list, new Comparator<FireFighterData>() {
+
+            @Override
+            public int compare(FireFighterData left, FireFighterData right) {
+                long leftTimestamp = left.getTimestamp().getEpochSecond();
+                long rightTimestamp = right.getTimestamp().getEpochSecond();
+                if (leftTimestamp < rightTimestamp) {
+                    return -1;
+                } else if (rightTimestamp > leftTimestamp) {
+                    return 1;
+                }
+
+                return 0;
+            }
+        });
 
         return list;
     }
